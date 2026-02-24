@@ -1,0 +1,206 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Jobs</title>
+    <style>
+      body {
+        margin: 0;
+        padding: 0;
+        font-family:
+          "Trebuchet MS", "Lucida Sans Unicode", "Lucida Grande", "Lucida Sans",
+          Arial, sans-serif;
+        background-color: aliceblue;
+        transition: background-color 0.3s ease;
+      }
+      body.dark-mode {
+        background-color: #121721;
+      }
+      .top {
+        background: url(starter-code/assets/desktop/bg-pattern-header.svg);
+        background-repeat: no-repeat;
+        background-size: cover;
+        height: 160px;
+        position: relative;
+      }
+      .top1 {
+        display: flex;
+        padding: 20px 50px;
+        justify-content: space-between;
+      }
+      .top2 {
+        display: flex;
+        background-color: white;
+        position: absolute;
+        top: 100px;
+        align-items: center;
+        justify-self: center;
+        gap: 30px;
+        padding: 20px 26px;
+        border-radius: 10px;
+        height: 40px;
+        transition: background-color 0.3s ease;
+      }
+      body.dark-mode .top2 {
+        background-color: #19202d;
+      }
+      .btn {
+        background-color: blue;
+        color: white;
+        padding: 12px 14px;
+        border-radius: 8px;
+        border: none;
+      }
+      .main {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        justify-self: center;
+        padding-top: 80px;
+        gap: 30px;
+      }
+      .card {
+        display: flex;
+        flex-direction: column;
+        gap: 5px;
+        position: relative;
+        background-color: white;
+        width: 270px;
+        height: 200px;
+        padding: 20px;
+        border-radius: 10px;
+        transition: background-color 0.3s ease;
+      }
+      body.dark-mode .card {
+        background-color: #19202d;
+      }
+      body.dark-mode .card b, body.dark-mode p {
+        color: white;
+      }
+      h1 {
+        color: white;
+      }
+      .mode {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+      .toggle-btn {
+        width: 40px;
+        height: 20px;
+        background-color: white;
+        border-radius: 20px;
+        border: none;
+        position: relative;
+        cursor: pointer;
+      }
+      .toggle-btn::before {
+        content: "";
+        position: absolute;
+        width: 14px;
+        height: 14px;
+        background-color: blue;
+        border-radius: 50%;
+        top: 3px;
+        left: 3px;
+        transition: 0.3s;
+      }
+      body.dark-mode .toggle-btn::before {
+        left: 23px;
+      }
+      body.dark-mode .inp1, body.dark-mode .inp2 {
+        color: white;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="top">
+        <div class="top1">
+          <h1>devjobs</h1>
+          <div class="mode">
+            <img src="starter-code/assets/desktop/icon-sun.svg" alt="" width="20px" />
+            <button class="toggle-btn" id="theme-toggle"></button>
+            <img src="starter-code/assets/desktop/icon-moon.svg" alt="" width="20px" />
+          </div>
+        </div>
+        <div class="top2">
+          <input
+            type="text"
+            placeholder="Filter by title,companies,expertise..."
+            style="border: none; background-color: transparent; position: relative;"
+            class="inp1"
+          /><img
+            src="starter-code/assets/desktop/icon-search.svg"
+            alt=""
+            width="20px"
+            style="position: absolute; left: 0"
+          />
+          <input
+            type="text"
+            placeholder="Filter by location..."
+            style="border: none; background-color: transparent"
+            class="inp2"
+          /><img
+            src="starter-code/assets/desktop/icon-location.svg"
+            alt=""
+            width="20px"
+            style="position: absolute; left: 200px"
+          />
+          <input type="checkbox" name="" id="check" />
+          <p>Full Time only</p>
+          <button class="btn">Search</button>
+        </div>
+      </div>
+      <div class="main"></div>
+    </div>
+
+    <script>
+      const themeToggle = document.getElementById("theme-toggle");
+      themeToggle.addEventListener("click", () => {
+        document.body.classList.toggle("dark-mode");
+      });
+
+      const inp1 = document.querySelector(".inp1");
+      const inp2 = document.querySelector(".inp2");
+      const btn = document.querySelector(".btn");
+      const check = document.querySelector("#check");
+      const box = document.querySelector(".main");
+      const URl = "./data.json";
+
+      btn.addEventListener("click", async function () {
+        const resp = await fetch(URl);
+        const data = await resp.json();
+        box.innerHTML = "";
+
+        for (let i = 0; i < data.length; i++) {
+          const currentCard = data[i].company.toLowerCase().trim();
+          const currentLocation = data[i].location.toLowerCase().trim();
+          const currentPosition = data[i].position.toLowerCase().trim();
+          const izdeu1 = inp1.value.toLowerCase().trim();
+          const izdeu2 = inp2.value.toLowerCase().trim();
+          const isFullTimeOnly = check.checked;
+          const contract = data[i].contract;
+          console.log(data);
+
+          const matchesSearch = currentCard.includes(izdeu1) || currentPosition.includes(izdeu1);
+          const matchesLocation = currentLocation.includes(izdeu2);
+          const matchesContract = !isFullTimeOnly || contract === "Full Time";
+
+          if (matchesContract && matchesLocation && matchesSearch) {
+            const card = document.createElement("div");
+            card.className = "card";
+            card.innerHTML = `
+                <img src="${data[i].logo}" alt="" width="34px" height="14px" style="border-radius: 10px; position: absolute; background-color: ${data[i].logoBackground}; padding: 10px 2px; top: -20px;">
+                <p style="color: rgba(128, 128, 128, 0.879);">${data[i].postedAt}</p>
+                <b>${data[i].position}</b>
+                <p style="color: rgba(128, 128, 128, 0.879);">${data[i].company}</p>
+                <p style="color: rgb(0, 0, 189);">${data[i].location}</p>
+            `;
+            box.appendChild(card);
+          }
+        }
+      });
+    </script>
+  </body>
+</html>
